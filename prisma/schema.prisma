@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserContact {
+  idUserContact  Int      @id @default(autoincrement()) @map("id_user_contact")
+  uniqueId       String   @unique @default(uuid()) @map("unique_id")
+  role           RoleEnum @default(SUPER_ADMIN) @map("role_user_contact")
+  username       String?  @map("username") @db.VarChar(20)
+  password       String   @map("password") @db.VarChar(50)
+  createdBy      String   @map("created_by") @db.VarChar(10)
+  updatedBy      String?  @map("updated_by") @db.VarChar(10)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  cartUserIdCart Int?     @map("cart_user_id")
+
+  cart Cart[]
+
+  @@index([username, password])
+  @@map("user_contact")
+}
+
+model CategoryItem {
+  idCategoryItem Int      @id @default(autoincrement()) @map("id_category_item")
+  uniqueId       String   @unique @default(uuid()) @map("unique_id")
+  catergryName   String   @map("category_name") @db.VarChar(250)
+  createdBy      String   @map("created_by") @db.VarChar(10)
+  updatedBy      String?  @map("updated_by") @db.VarChar(10)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  categoryItemToItem Item[]
+
+  @@index([catergryName])
+  @@map("category_item")
+}
+
+model CategoryWeightItem {
+  idCategoryWeightItem Int                    @id @default(autoincrement()) @map("category_weight_item")
+  uniqueId             String                 @unique @default(uuid()) @map("unique_id")
+  categoryWeightName   CategoryWeightItemEnum @default(LIGHT) @map("category_weight_name")
+  createdBy            String                 @map("created_by") @db.VarChar(10)
+  updatedBy            String?                @map("updated_by") @db.VarChar(10)
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt            DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  CategoryWeightItemitem Item[]
+
+  @@index([categoryWeightName])
+  @@map("category_weight_item")
+}
+
+model Item {
+  idItem           Int      @id @default(autoincrement()) @map("id_item")
+  uniqueId         String   @unique @default(uuid()) @map("unique_id")
+  itemName         String   @map("item_name") @db.VarChar(250)
+  description      String   @map("description") @db.Text()
+  price            Float    @map("price_item") @db.DoublePrecision()
+  discount         Int?     @map("discount_item") @db.Integer()
+  createdBy        String   @map("created_by") @db.VarChar(10)
+  updatedBy        String?  @map("updated_by") @db.VarChar(10)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  categoryItemId   Int?     @map("category_item_id")
+  categoryWeightId Int?     @map("category_weight_item_id")
+
+  CategoryItem       CategoryItem?       @relation(fields: [categoryItemId], references: [idCategoryItem])
+  CategoryWeightItem CategoryWeightItem? @relation(fields: [categoryWeightId], references: [idCategoryWeightItem])
+  CartItem           CartItem[]
+
+  @@index([itemName])
+  @@map("item")
+}
+
+model Cart {
+  idCart     Int     @id @default(autoincrement()) @map("cart_user")
+  uniqueId   String  @unique @default(uuid()) @map("unique_id")
+  note       String  @map("note_cart") @db.Text()
+  isCheckout Boolean @default(false) @db.Boolean()
+  userId     Int     @unique @map("user_id")
+
+  UserContact UserContact @relation(fields: [userId], references: [idUserContact])
+  cartItem    CartItem[]
+
+  @@index([isCheckout])
+  @@map("cart")
+}
+
+model CartItem {
+  idCartItem Int    @id @default(autoincrement()) @map("cart_item")
+  uniqueId   String @unique @default(uuid()) @map("unique_id")
+  price      Float  @map("price") @db.DoublePrecision()
+  discount   Int?   @map("discount") @db.Integer()
+  cartId     Int?   @unique @map("cart_id")
+  itemId     Int?   @unique @map("item_id")
+
+  cartToItem Item? @relation(fields: [itemId], references: [idItem])
+  CartUser   Cart? @relation(fields: [cartId], references: [idCart])
+
+  @@index([cartId])
+  @@map("cart_item")
+}
+
+enum RoleEnum {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum CategoryWeightItemEnum {
+  LIGHT
+  MEDIUM
+  HEAVY
+  VERY_HEAVY
+}
