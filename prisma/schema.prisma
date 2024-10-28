@@ -16,11 +16,10 @@ datasource db {
 model UserContact {
   idUserContact  Int      @id @default(autoincrement()) @map("id_user_contact")
   uniqueId       String   @unique @default(uuid()) @map("unique_id")
+  email          String   @unique @map("email") @db.VarChar(250)
   role           RoleEnum @default(SUPER_ADMIN) @map("role_user_contact")
   username       String?  @map("username") @db.VarChar(20)
-  password       String   @map("password") @db.VarChar(50)
-  createdBy      String   @map("created_by") @db.VarChar(10)
-  updatedBy      String?  @map("updated_by") @db.VarChar(10)
+  password       String   @map("password") @db.VarChar(100)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
   cartUserIdCart Int?     @map("cart_user_id")
