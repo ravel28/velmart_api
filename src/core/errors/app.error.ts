@@ -18,9 +18,9 @@ abstract class AppError extends Error {
     this.suberror = suberror;
     this.logger = new Logger(instance === undefined ? AppError.name : instance);
     this.logger.error(message);
-    if (process.env.NODE_ENV === 'dev') {
-      this.logger.debug(message, suberror);
-    }
+    // if (process.env.NODE_ENV === 'dev') {
+    //   this.logger.debug(message, suberror);
+    // }
   }
 
   getNonUndefinedInstance(_instance, _default) {
