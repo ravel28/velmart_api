@@ -26,8 +26,12 @@ export class CacheUserService extends BaseService {
     store: RoleAuthDto,
     time?: number,
   ): Promise<void> {
-    const timeDefault: number = time ? time : 7200;
-    await this.cacheManager.set(`${type}:${store.email}`, store, timeDefault);
+    const timeDefault: number = time ? time : 86400000;
+    await this.cacheManager.set(
+      `${type}:${store.email}`, 
+      store, 
+      timeDefault
+    );
   }
 
   async getCacheBaseService(email: string): Promise<RoleAuthDto> {
